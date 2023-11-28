@@ -1,0 +1,25 @@
+import { router } from 'expo-router';
+import { useEffect } from 'react';
+import { supabase } from '@/services/supabase-client';
+
+export default function IndexPage() {
+
+    useEffect(() => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session) router.replace("/(tabs)/home");
+        })
+
+        supabase.auth.onAuthStateChange(async (event, session) => {
+            console.log('onAuthStateChange:', event);
+
+            if (event === 'PASSWORD_RECOVERY') {
+                console.log('hit the pw recovery event!');
+                const { data, error } = await supabase.auth.updateUser({ password: 'fishfish' });
+            }
+
+            if (session) router.replace("/(tabs)/home");
+            else router.replace("/(auth)/login");
+        })
+    }, [])
+
+}
